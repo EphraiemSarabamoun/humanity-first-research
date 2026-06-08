@@ -1,0 +1,73 @@
+---
+import { type CollectionEntry, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from './Base.astro';
+import ProvenanceBanner from '../components/ProvenanceBanner.astro';
+import References from '../components/References.astro';
+import DataLinks from '../components/DataLinks.astro';
+import TagList from '../components/TagList.astro';
+
+interface Props { entry: CollectionEntry<'research'>; slug: string; }
+const { entry, slug } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+
+const fmtDate = d.date.toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
+});
+const ogImage = d.hero ? d.hero.src : '/og-default.png';
+const metaBits = [
+  d.collaborators.length ? d.collaborators.join(', ') : null,
+  d.run_id ? `run ${d.run_id}` : null,
+  d.compute ?? null,
+].filter(Boolean);
+---
+<Base title={d.title} description={d.summary} type="article" ogImage={ogImage}>
+  <article class="measure" style="padding-top:2rem;">
+    <p class="kicker">Research</p>
+    <h1>{d.title}</h1>
+    {d.subtitle && <p class="lede">{d.subtitle}</p>}
+    <p class="post__meta">
+      <time datetime={d.date.toISOString()}>{fmtDate}</time>
+      {metaBits.length > 0 && <> · {metaBits.join(' · ')}</>}
+    </p>
+    <TagList tags={d.tags} />
+
+    <ProvenanceBanner
+      generatedBy={d.generated_by}
+      reviewLevel={d.review_level}
+      humanReviewedBy={d.human_reviewed_by}
+      humanReviewedAt={d.human_reviewed_at}
+      reviewNote={d.review_note}
+    />
+
+    {d.hero && (
+      <figure class="post__hero">
+        <Image src={d.hero} alt={`Headline figure for ${d.title}`} widths={[480, 800, 1080]} sizes="(max-width: 760px) 100vw, 760px" />
+        {d.hero_csv && (
+          <figcaption>
+            Data behind this figure: <a href={`/research/${slug}/${d.hero_csv}`} download>{d.hero_csv}</a>
+          </figcaption>
+        )}
+      </figure>
+    )}
+
+    <div class="essay">
+      <Content />
+    </div>
+
+    <DataLinks
+      slug={slug}
+      heroCsv={d.hero_csv}
+      dataFiles={d.data_files}
+      links={d.links}
+    />
+
+    <References references={d.references} />
+
+    <hr />
+    <p style="font-family:var(--sans);font-size:0.95rem;">
+      <a href="/research/">← All research</a>
+    </p>
+  </article>
+</Base>

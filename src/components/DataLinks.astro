@@ -1,0 +1,34 @@
+---
+// Links to the colocated data bundle (the plot's CSV, analysis dumps, raw eval
+// records) and external code/paper links. Every plot ships with its CSV; this is
+// where a reader goes to check the numbers.
+interface Links {
+  github?: string;
+  overleaf?: string;
+  arxiv?: string;
+  code_local?: string;
+}
+interface Props {
+  slug: string;
+  heroCsv?: string;
+  dataFiles?: string[];
+  links?: Links;
+}
+const { slug, heroCsv, dataFiles = [], links = {} } = Astro.props;
+const base = `/research/${slug}`;
+const assetFiles = [heroCsv, ...dataFiles].filter((f): f is string => Boolean(f));
+const hasExternal = links.github || links.overleaf || links.arxiv;
+---
+{(assetFiles.length > 0 || hasExternal) && (
+  <aside class="datalinks" aria-labelledby="data-heading">
+    <h3 id="data-heading">Data &amp; code</h3>
+    <ul>
+      {assetFiles.map((f) => (
+        <li><a href={`${base}/${f}`} download>{f}</a></li>
+      ))}
+      {links.github && <li><a href={links.github} rel="noopener" target="_blank">Code repository (GitHub)</a></li>}
+      {links.arxiv && <li><a href={links.arxiv} rel="noopener" target="_blank">Paper (arXiv)</a></li>}
+      {links.overleaf && <li><a href={links.overleaf} rel="noopener" target="_blank">Draft (Overleaf)</a></li>}
+    </ul>
+  </aside>
+)}

@@ -1,0 +1,26 @@
+---
+import TagList from './TagList.astro';
+interface Props {
+  href: string;
+  title: string;
+  date: Date;
+  summary: string;
+  tags?: string[];
+  reviewLevel?: 'none' | 'limited' | 'full';
+}
+const { href, title, date, summary, tags = [], reviewLevel = 'none' } = Astro.props;
+const fmt = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const reviewLabel =
+  reviewLevel === 'full' ? 'human-reviewed'
+  : reviewLevel === 'limited' ? 'limited human review'
+  : 'autonomously published';
+---
+<li class="card">
+  <div class="card__date">
+    <time datetime={date.toISOString()}>{fmt}</time>
+    {' · '}{reviewLabel}
+  </div>
+  <h2 class="card__title"><a href={href}>{title}</a></h2>
+  <p class="card__summary">{summary}</p>
+  <TagList tags={tags} />
+</li>

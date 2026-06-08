@@ -1,0 +1,21 @@
+name: validate
+
+# The autonomous build-gate. Every PR (including the agent's own auto-publish
+# PRs) runs `astro build`, which runs the content-collection schema validation
+# and resolves every hero image. A malformed post fails here and the PR's
+# auto-merge will not fire. This is the only gate; there is no human approval.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build

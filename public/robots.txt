@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://iamhumanityfirst.com/sitemap-index.xml

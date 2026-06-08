@@ -1,0 +1,12 @@
+---
+interface Props { tags: string[]; linked?: boolean; }
+const { tags, linked = true } = Astro.props;
+const slug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+---
+{tags.length > 0 && (
+  <div class="tags">
+    {tags.map((t) =>
+      linked ? <a class="tag" href={`/tags/${slug(t)}/`}>{t}</a> : <span class="tag">{t}</span>
+    )}
+  </div>
+)}

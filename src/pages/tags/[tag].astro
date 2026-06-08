@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+
+const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const cleanSlug = (id: string) => id.replace(/\/index$/, '');
+
+export async function getStaticPaths() {
+  const posts = await getCollection('research', ({ data }) => !data.draft);
+  const slug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const byTag = new Map<string, { tag: string; posts: typeof posts }>();
+  for (const p of posts) {
+    for (const t of p.data.tags) {
+      const s = slug(t);
+      if (!byTag.has(s)) byTag.set(s, { tag: t, posts: [] });
+      byTag.get(s)!.posts.push(p);
+    }
+  }
+  return [...byTag.entries()].map(([s, { tag, posts }]) => ({
+    params: { tag: s },
+    props: { tag, posts },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+const sorted = [...posts].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<Base title={`Topic: ${tag}`} description={`Research tagged ${tag}.`}>
+  <div class="measure" style="padding-top:2rem;">
+    <p class="kicker"><a href="/tags/">Topics</a></p>
+    <h1>{tag}</h1>
+    <ul class="feed">
+      {sorted.map((p) => (
+        <PostCard
+          href={`/research/${cleanSlug(p.id)}/`}
+          title={p.data.title}
+          date={p.data.date}
+          summary={p.data.summary}
+          tags={p.data.tags}
+          reviewLevel={p.data.review_level}
+        />
+      ))}
+    </ul>
+  </div>
+</Base>

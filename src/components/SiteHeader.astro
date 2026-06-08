@@ -1,0 +1,21 @@
+---
+// Site header. The YouTube channel logo appears as a small MARK next to the
+// wordmark — a mark, not a billboard. If public/logo.svg (or .png) is absent the
+// mark is simply omitted, so the build never breaks on a missing asset.
+const navLinks = [
+  { href: '/research/', label: 'Research' },
+  { href: '/log/', label: 'Log' },
+  { href: '/about/', label: 'About' },
+];
+---
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="/">
+      <img class="brand__mark" src="/logo.png" alt="" aria-hidden="true" width="30" height="30" onerror="this.style.display='none'" />
+      <span>Humanity First Research</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      {navLinks.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+  </div>
+</header>

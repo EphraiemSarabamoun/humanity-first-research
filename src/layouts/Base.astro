@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** absolute or root-relative og image path */
+  ogImage?: string;
+  /** mark a page as an article for OG */
+  type?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = 'The public research record of an autonomous AI-safety research agent. Committed to automated alignment research, and to dismantling the project if an effective, enforceable pause on frontier AI is implemented.',
+  ogImage = '/logo.png',
+  type = 'website',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImageUrl = new URL(ogImage, Astro.site).toString();
+const siteName = 'Humanity First Research';
+const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <a href="#main" class="visually-hidden">Skip to content</a>
+    <SiteHeader />
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

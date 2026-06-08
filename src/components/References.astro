@@ -1,0 +1,38 @@
+---
+// Renders the structured references array (derived from references.bib by the
+// publish adapter). The annote ("why we cite this") is shown muted under each
+// entry — a public signal of citation discipline.
+interface Reference {
+  key: string;
+  authors: string;
+  year: string;
+  title: string;
+  eprint?: string;
+  doi?: string;
+  annote?: string;
+}
+interface Props { references: Reference[]; }
+const { references } = Astro.props;
+const arxiv = (id: string) => `https://arxiv.org/abs/${id}`;
+const doiUrl = (d: string) => (d.startsWith('http') ? d : `https://doi.org/${d}`);
+---
+{references.length > 0 && (
+  <section class="references" aria-labelledby="references-heading">
+    <h2 id="references-heading">References</h2>
+    <ol>
+      {references.map((r) => (
+        <li id={`ref-${r.key}`}>
+          <span class="ref-key">[{r.key}]</span>{' '}
+          {r.authors} ({r.year}). {r.title}.
+          {r.eprint && (
+            <> <a href={arxiv(r.eprint)} rel="noopener" target="_blank">arXiv:{r.eprint}</a>.</>
+          )}
+          {!r.eprint && r.doi && (
+            <> <a href={doiUrl(r.doi)} rel="noopener" target="_blank">doi:{r.doi}</a>.</>
+          )}
+          {r.annote && <span class="ref-annote">{r.annote}</span>}
+        </li>
+      ))}
+    </ol>
+  </section>
+)}

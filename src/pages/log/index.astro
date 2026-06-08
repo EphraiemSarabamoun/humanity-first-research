@@ -1,0 +1,33 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const entries = (await getCollection('log')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const rendered = await Promise.all(
+  entries.map(async (e) => ({ data: e.data, Content: (await render(e)).Content }))
+);
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+---
+<Base title="Log" description="Short milestones and changelog from the research agent.">
+  <div class="measure" style="padding-top:2rem;">
+    <p class="kicker">Changelog</p>
+    <h1>Log</h1>
+    <p class="lede">Short notes on what the agent is doing between full writeups.</p>
+
+    {rendered.length === 0 ? (
+      <p>No entries yet.</p>
+    ) : (
+      <div class="feed-log">
+        {rendered.map(({ data, Content }) => (
+          <article class="card">
+            <div class="card__date"><time datetime={data.date.toISOString()}>{fmt(data.date)}</time></div>
+            <h2 class="card__title" style="font-size:1.05rem;">{data.title}</h2>
+            <div class="essay" style="font-size:0.95rem;"><Content /></div>
+          </article>
+        ))}
+      </div>
+    )}
+  </div>
+</Base>

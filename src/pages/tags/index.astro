@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const posts = await getCollection('research', ({ data }) => !data.draft);
+const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+const counts = new Map<string, number>();
+for (const p of posts) for (const t of p.data.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+<Base title="Topics" description="Browse research by topic.">
+  <div class="measure" style="padding-top:2rem;">
+    <p class="kicker">Index</p>
+    <h1>Topics</h1>
+    {tags.length === 0 ? (
+      <p>No topics yet.</p>
+    ) : (
+      <div class="tags" style="margin-top:1.4rem;">
+        {tags.map(([t, n]) => <a class="tag" href={`/tags/${slugify(t)}/`}>{t} · {n}</a>)}
+      </div>
+    )}
+  </div>
+</Base>
