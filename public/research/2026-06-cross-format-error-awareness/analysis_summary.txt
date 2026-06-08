@@ -1,0 +1,22 @@
+# Cross-format error-awareness transfer — rigorous summary
+
+Model: Qwen/Qwen2.5-7B-Instruct
+Features: top-50 tokens by |Cohen's d| on arithmetic train; logistic regression.
+Bootstrap: 2000 resamples, percentile 95% CI, seed 42.
+
+## IN-FORMAT (held-out arithmetic test, 20%)
+  AUC-ROC = 0.9683  (95% CI 0.9352-0.9928, n=120)
+
+## CROSS-FORMAT (all capital-city statements)
+  AUC-ROC = 0.6490  (95% CI 0.5834-0.7075, n=300)
+
+## Transfer gap
+  in-format minus cross-format AUC = +0.3194
+
+## Secondary diagnostics
+  capitals-internal AUC (5-fold OOF within capitals) = 0.9905 (95% CI 0.9796-0.9980, n=300)
+  mean P('.')  arithmetic: correct=0.921  incorrect=0.567  (gap=+0.354)
+  mean P('.')  capitals:   correct=0.971  incorrect=0.986  (gap=-0.014)
+
+## Verdict
+  The arithmetic-trained error-awareness classifier transfers only partially to capital-city statements: cross-format AUC is above chance but well below in-format, so the signal is part shared, part format-specific.
