@@ -41,6 +41,12 @@ const metaBits = [
       reviewNote={d.review_note}
     />
 
+    {d.pdf && (
+      <p class="pdf-cta">
+        <a href={`/research/${slug}/${d.pdf}`} download>Download paper (PDF, NeurIPS format)</a>
+      </p>
+    )}
+
     {d.hero && (
       <figure class="post__hero">
         <Image src={d.hero} alt={`Headline figure for ${d.title}`} widths={[480, 800, 1080]} sizes="(max-width: 760px) 100vw, 760px" />
@@ -58,6 +64,7 @@ const metaBits = [
 
     <DataLinks
       slug={slug}
+      pdf={d.pdf}
       heroCsv={d.hero_csv}
       dataFiles={d.data_files}
       links={d.links}

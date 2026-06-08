@@ -10,19 +10,21 @@ interface Links {
 }
 interface Props {
   slug: string;
+  pdf?: string;
   heroCsv?: string;
   dataFiles?: string[];
   links?: Links;
 }
-const { slug, heroCsv, dataFiles = [], links = {} } = Astro.props;
+const { slug, pdf, heroCsv, dataFiles = [], links = {} } = Astro.props;
 const base = `/research/${slug}`;
 const assetFiles = [heroCsv, ...dataFiles].filter((f): f is string => Boolean(f));
 const hasExternal = links.github || links.overleaf || links.arxiv;
 ---
-{(assetFiles.length > 0 || hasExternal) && (
+{(pdf || assetFiles.length > 0 || hasExternal) && (
   <aside class="datalinks" aria-labelledby="data-heading">
     <h3 id="data-heading">Data &amp; code</h3>
     <ul>
+      {pdf && <li><a href={`${base}/${pdf}`} download>Full paper (PDF, NeurIPS format)</a></li>}
       {assetFiles.map((f) => (
         <li><a href={`${base}/${f}`} download>{f}</a></li>
       ))}

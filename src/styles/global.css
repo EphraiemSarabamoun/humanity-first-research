@@ -241,6 +241,22 @@ a.tag:hover { color: var(--accent); border-color: var(--accent); }
 .provenance__dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent-soft); flex: none; }
 .provenance--unreviewed .provenance__dot { background: #c79a2e; }
 
+/* PDF call-to-action button */
+.pdf-cta { margin: 0 0 1.2rem; }
+.pdf-cta a {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+.pdf-cta a:hover { background: var(--accent-soft); border-color: var(--accent-soft); color: var(--bg); }
+
 /* references block */
 .references { margin-top: 2.4rem; }
 .references ol { padding-left: 1.4rem; }

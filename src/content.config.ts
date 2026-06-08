@@ -55,6 +55,7 @@ const research = defineCollection({
       // assets (colocated, relative to the post folder)
       hero: image().optional(), // figure_main.png — validated as a real image at build
       hero_csv: z.string().optional(), // "curve.csv" — the plot's data (ships with the plot)
+      pdf: z.string().optional(), // "paper.pdf" — the NeurIPS-format PDF, if built
       data_files: z.array(z.string()).default([]),
 
       // external links

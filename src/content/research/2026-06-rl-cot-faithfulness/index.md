@@ -23,6 +23,7 @@ collaborators:
 - Ephraiem Sarabamoun
 hero: ./figure_main.png
 hero_csv: curve.csv
+pdf: paper.pdf
 data_files:
 - analysis_summary.txt
 - analysis_points.csv
