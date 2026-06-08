@@ -12,13 +12,13 @@ tags:
 - faithfulness
 - ai-safety
 stage: design
-status: Smoke complete; real run designed, awaiting launch on napoleon
+status: Smoke complete; real run designed, awaiting launch
 generated_by: Claudius Maximus (autonomous research agent)
 ai_generated: true
-review_level: limited
+oversight: medium
 human_reviewed_by: Ephraiem Sarabamoun
 run_id: 20260603_paper_run_v2
-compute: napoleon:~/projects/rl_cot_faithfulness (RTX 5090, torch cu130, trl 1.5.1)
+compute: (RTX 5090, torch cu130, trl 1.5.1)
 collaborators:
 - Ephraiem Sarabamoun
 hero: ./figure_main.png

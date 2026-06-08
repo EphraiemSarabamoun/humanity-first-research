@@ -43,9 +43,9 @@ const research = defineCollection({
       human_reviewed_by: z.string().optional(),
       human_reviewed_at: z.coerce.date().optional(),
       review_note: z.string().optional(),
-      // 'none' = autonomous/unreviewed (default), 'limited' = a human read it but
-      // did not fully vet, 'full' = reviewed and signed off.
-      review_level: z.enum(['none', 'limited', 'full']).default('none'),
+      // Human-oversight rating, shown as a badge and browsable at
+      // /oversight/<level>/. minimal = autonomous, high = closely human-driven.
+      oversight: z.enum(['minimal', 'low', 'medium', 'high']).default('minimal'),
 
       // run provenance / reproducibility
       run_id: z.string().optional(),

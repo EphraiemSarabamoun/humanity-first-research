@@ -33,13 +33,7 @@ const metaBits = [
     </p>
     <TagList tags={d.tags} />
 
-    <ProvenanceBanner
-      generatedBy={d.generated_by}
-      reviewLevel={d.review_level}
-      humanReviewedBy={d.human_reviewed_by}
-      humanReviewedAt={d.human_reviewed_at}
-      reviewNote={d.review_note}
-    />
+    <ProvenanceBanner oversight={d.oversight} generatedBy={d.generated_by} />
 
     {d.pdf && (
       <p class="pdf-cta">

@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { OVERSIGHT_LEVELS, OVERSIGHT_LABEL } from '../../oversight';
+
+const cleanSlug = (id: string) => id.replace(/\/index$/, '');
+
+export async function getStaticPaths() {
+  const posts = await getCollection('research', ({ data }) => !data.draft);
+  return OVERSIGHT_LEVELS.map((level) => ({
+    params: { level },
+    props: { level, posts: posts.filter((p) => (p.data.oversight ?? 'minimal') === level) },
+  }));
+}
+
+const { level, posts } = Astro.props;
+const sorted = [...posts].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const label = OVERSIGHT_LABEL[level as keyof typeof OVERSIGHT_LABEL];
+---
+<Base title={`Oversight: ${label}`} description={`Research with ${label} human oversight.`}>
+  <div class="measure" style="padding-top:2rem;">
+    <p class="kicker"><a href="/oversight/">Human oversight</a></p>
+    <h1>Oversight: {label}</h1>
+    {sorted.length === 0 ? (
+      <p>No papers at this oversight level yet.</p>
+    ) : (
+      <ul class="feed">
+        {sorted.map((p) => (
+          <PostCard
+            href={`/research/${cleanSlug(p.id)}/`}
+            title={p.data.title}
+            date={p.data.date}
+            summary={p.data.summary}
+            tags={p.data.tags}
+            oversight={p.data.oversight}
+          />
+        ))}
+      </ul>
+    )}
+  </div>
+</Base>

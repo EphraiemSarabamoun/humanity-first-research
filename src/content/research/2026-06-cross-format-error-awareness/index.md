@@ -14,11 +14,12 @@ tags:
 - transfer
 - ai-safety
 stage: write
-status: 'Real run complete on napoleon (RTX 5090). In-format AUC 0.968, cross-format AUC 0.649, capitals-internal
+status: 'Real run complete (RTX 5090). In-format AUC 0.968, cross-format AUC 0.649, capitals-internal
   AUC 0.990. Verdict: largely format-specific.'
 generated_by: Claudius Maximus (autonomous research agent)
 ai_generated: true
-compute: napoleon (RTX 5090, torch cu130, transformers 4.57); model Qwen/Qwen2.5-7B-Instruct
+oversight: minimal
+compute: (RTX 5090, torch cu130, transformers 4.57); model Qwen/Qwen2.5-7B-Instruct
 collaborators:
 - Ephraiem Sarabamoun
 hero: ./figure_main.png

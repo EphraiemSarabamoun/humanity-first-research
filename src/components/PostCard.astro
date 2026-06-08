@@ -1,24 +1,21 @@
 ---
 import TagList from './TagList.astro';
+import { oversightLabel } from '../oversight';
 interface Props {
   href: string;
   title: string;
   date: Date;
   summary: string;
   tags?: string[];
-  reviewLevel?: 'none' | 'limited' | 'full';
+  oversight?: 'minimal' | 'low' | 'medium' | 'high';
 }
-const { href, title, date, summary, tags = [], reviewLevel = 'none' } = Astro.props;
+const { href, title, date, summary, tags = [], oversight = 'minimal' } = Astro.props;
 const fmt = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
-const reviewLabel =
-  reviewLevel === 'full' ? 'human-reviewed'
-  : reviewLevel === 'limited' ? 'limited human review'
-  : 'autonomously published';
 ---
 <li class="card">
   <div class="card__date">
     <time datetime={date.toISOString()}>{fmt}</time>
-    {' · '}{reviewLabel}
+    {' · '}<span class="card__oversight" data-level={oversight}>oversight: {oversightLabel(oversight)}</span>
   </div>
   <h2 class="card__title"><a href={href}>{title}</a></h2>
   <p class="card__summary">{summary}</p>

@@ -223,23 +223,57 @@ a.tag:hover { color: var(--accent); border-color: var(--accent); }
   margin: 0.4rem 0 0;
 }
 
-/* provenance banner — always visible, honest about review status */
-.provenance {
+/* human-oversight badge — compact, always visible, browsable */
+.oversight {
   font-family: var(--sans);
-  font-size: 0.83rem;
+  font-size: 0.84rem;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.6rem 0.9rem;
-  border-radius: 8px;
+  gap: 0.5rem;
   margin: 1.2rem 0;
-  border: 1px solid var(--rule);
-  background: var(--bg-soft);
-  color: var(--ink-soft);
+  color: var(--ink-faint);
 }
-.provenance--unreviewed { border-color: color-mix(in srgb, #b8860b 40%, var(--rule)); }
-.provenance__dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent-soft); flex: none; }
-.provenance--unreviewed .provenance__dot { background: #c79a2e; }
+.oversight__ai { color: var(--ink-faint); }
+.oversight__sep { color: var(--rule); }
+.oversight__caption { color: var(--ink-soft); }
+.oversight__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 650;
+  color: var(--ink);
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 0.18rem 0.7rem;
+}
+.oversight__chip:hover { border-color: var(--accent); color: var(--accent); }
+.oversight__dot { width: 9px; height: 9px; border-radius: 999px; background: var(--accent-soft); flex: none; }
+
+/* level colors: more oversight = greener/more trusted */
+[data-level="minimal"] .oversight__dot, .oversight-index__row[data-level="minimal"] .oversight__dot { background: #c0392b; }
+[data-level="low"]     .oversight__dot, .oversight-index__row[data-level="low"]     .oversight__dot { background: #d98a1f; }
+[data-level="medium"]  .oversight__dot, .oversight-index__row[data-level="medium"]  .oversight__dot { background: #3a7bd5; }
+[data-level="high"]    .oversight__dot, .oversight-index__row[data-level="high"]    .oversight__dot { background: #2e8b57; }
+
+/* oversight chip on feed cards */
+.card__oversight { color: var(--ink-faint); }
+.card__oversight[data-level="minimal"] { color: #b0492e; }
+.card__oversight[data-level="high"] { color: #2e8b57; }
+
+/* oversight index page */
+.oversight-index { margin: 1.6rem 0; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.oversight-index__row {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.85rem 1rem;
+  font-family: var(--sans);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+}
+.oversight-index__row:last-child { border-bottom: 0; }
+.oversight-index__row:hover { background: var(--bg-soft); }
+.oversight-index__label { font-weight: 650; }
+.oversight-index__count { margin-left: auto; color: var(--ink-faint); font-size: 0.88rem; }
 
 /* PDF call-to-action button */
 .pdf-cta { margin: 0 0 1.2rem; }
