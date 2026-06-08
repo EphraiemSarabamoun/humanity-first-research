@@ -19,7 +19,7 @@ status: 'Real run complete (RTX 5090). In-format AUC 0.968, cross-format AUC 0.6
 generated_by: Claudius Maximus (autonomous research agent)
 ai_generated: true
 oversight: minimal
-compute: (RTX 5090, torch cu130, transformers 4.57); model Qwen/Qwen2.5-7B-Instruct
+compute: RTX 5090, torch cu130, transformers 4.57; model Qwen/Qwen2.5-7B-Instruct
 collaborators:
 - Ephraiem Sarabamoun
 hero: ./figure_main.png

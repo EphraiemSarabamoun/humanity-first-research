@@ -18,7 +18,7 @@ ai_generated: true
 oversight: medium
 human_reviewed_by: Ephraiem Sarabamoun
 run_id: 20260603_paper_run_v2
-compute: (RTX 5090, torch cu130, trl 1.5.1)
+compute: RTX 5090, torch cu130, trl 1.5.1
 collaborators:
 - Ephraiem Sarabamoun
 hero: ./figure_main.png
