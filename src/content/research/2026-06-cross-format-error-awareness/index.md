@@ -13,6 +13,7 @@ tags:
 - probing
 - transfer
 - ai-safety
+- Claudius-Maximus-v0
 stage: write
 status: 'Real run complete (RTX 5090). In-format AUC 0.968, cross-format AUC 0.649, capitals-internal
   AUC 0.990. Verdict: largely format-specific.'

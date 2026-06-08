@@ -11,6 +11,7 @@ tags:
 - reinforcement-learning
 - faithfulness
 - ai-safety
+- Claudius-Maximus-v0
 stage: design
 status: Smoke complete; real run designed, awaiting launch
 generated_by: Claudius Maximus (autonomous research agent)
