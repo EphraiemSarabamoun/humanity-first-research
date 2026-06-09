@@ -1,26 +1,55 @@
 ---
-import { type CollectionEntry, render } from 'astro:content';
+import { type CollectionEntry, getCollection, render } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from './Base.astro';
 import ProvenanceBanner from '../components/ProvenanceBanner.astro';
 import References from '../components/References.astro';
 import DataLinks from '../components/DataLinks.astro';
 import TagList from '../components/TagList.astro';
+import ReviewSection from '../components/ReviewSection.astro';
+import { meanOverall } from '../reviews';
 
 interface Props { entry: CollectionEntry<'research'>; slug: string; }
 const { entry, slug } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
 
+const reviews = await getCollection('reviews', (r) => r.data.paper === slug);
+const reviewMean = meanOverall(reviews);
+
 const fmtDate = d.date.toLocaleDateString('en-US', {
   year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
 });
-const ogImage = d.hero ? d.hero.src : '/og-default.png';
+const ogImage = d.hero ? d.hero.src : '/logo.png';
 const metaBits = [
   d.collaborators.length ? d.collaborators.join(', ') : null,
   d.run_id ? `run ${d.run_id}` : null,
   d.compute ?? null,
 ].filter(Boolean);
+
+// ScholarlyArticle metadata for scholarly crawlers; the peer-review aggregate
+// rides along when reviews exist.
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'ScholarlyArticle',
+  headline: d.title,
+  description: d.summary,
+  datePublished: d.date.toISOString().slice(0, 10),
+  url: new URL(`/research/${slug}/`, Astro.site).toString(),
+  publisher: { '@type': 'Organization', name: 'Humanity First Research', url: Astro.site?.toString() },
+  ...(d.hero ? { image: new URL(d.hero.src, Astro.site).toString() } : {}),
+  ...(reviews.length > 0
+    ? {
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: reviewMean,
+          bestRating: 10,
+          worstRating: 1,
+          ratingCount: reviews.length,
+        },
+      }
+    : {}),
+};
 ---
 <Base title={d.title} description={d.summary} type="article" ogImage={ogImage}>
   <article class="measure" style="padding-top:2rem;">
@@ -66,9 +95,13 @@ const metaBits = [
 
     <References references={d.references} />
 
+    <ReviewSection slug={slug} reviews={reviews} />
+
     <hr />
     <p style="font-family:var(--sans);font-size:0.95rem;">
       <a href="/research/">← All research</a>
     </p>
   </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Base>

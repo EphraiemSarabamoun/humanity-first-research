@@ -8,14 +8,28 @@ interface Props {
   summary: string;
   tags?: string[];
   oversight?: 'minimal' | 'low' | 'medium' | 'high';
+  /** mean overall peer-review score (1-10), when the paper has reviews */
+  reviewMean?: number | null;
+  reviewCount?: number;
 }
-const { href, title, date, summary, tags = [], oversight = 'minimal' } = Astro.props;
+const {
+  href, title, date, summary, tags = [], oversight = 'minimal',
+  reviewMean = null, reviewCount = 0,
+} = Astro.props;
 const fmt = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 ---
 <li class="card">
   <div class="card__date">
     <time datetime={date.toISOString()}>{fmt}</time>
     {' · '}<span class="card__oversight" data-level={oversight}>oversight: {oversightLabel(oversight)}</span>
+    {reviewCount > 0 && (
+      <>
+        {' · '}
+        <span class="card__review" title={`Mean overall peer-review score across ${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'}`}>
+          reviewed {reviewMean}/10 ({reviewCount})
+        </span>
+      </>
+    )}
   </div>
   <h2 class="card__title"><a href={href}>{title}</a></h2>
   <p class="card__summary">{summary}</p>

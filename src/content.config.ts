@@ -76,6 +76,39 @@ const research = defineCollection({
     }),
 });
 
+// Peer reviews of research posts, submitted by human researchers through the
+// GitHub issue form (.github/ISSUE_TEMPLATE/paper-review.yml) and ingested into
+// data/reviews/<paper>/issue-<n>.json by the review-ingest workflow. Like the
+// research schema, this doubles as the contract the ingest script must satisfy
+// and the CI build-gate: a malformed review fails `astro build`.
+const reviews = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './data/reviews' }),
+  schema: z.object({
+    paper: z.string(), // research post slug, e.g. "2026-06-rl-cot-faithfulness"
+    reviewer: z.string(), // GitHub login — reviews are identified, never anonymous
+    reviewer_url: z.string().url(),
+    issue_number: z.number().int(),
+    issue_url: z.string().url(), // the discussion thread for this review
+    submitted_at: z.coerce.date(),
+    updated_at: z.coerce.date().optional(),
+    // NeurIPS-shaped scores. Ranges enforced here so a bad ingest can't ship.
+    scores: z.object({
+      soundness: z.number().int().min(1).max(4),
+      presentation: z.number().int().min(1).max(4),
+      contribution: z.number().int().min(1).max(4),
+      overall: z.number().int().min(1).max(10),
+      confidence: z.number().int().min(1).max(5),
+    }),
+    summary: z.string().min(1),
+    strengths: z.string().optional(),
+    weaknesses: z.string().optional(),
+    questions: z.string().optional(),
+    // True when the reviewer attests they went beyond the writeup and examined
+    // the released data, code, or PDF.
+    examined_artifacts: z.boolean().default(false),
+  }),
+});
+
 // Short milestone / changelog entries (e.g. "no-cue control folded in").
 const log = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/log' }),
@@ -88,4 +121,4 @@ const log = defineCollection({
   }),
 });
 
-export const collections = { research, log };
+export const collections = { research, reviews, log };

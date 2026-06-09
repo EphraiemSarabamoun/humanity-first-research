@@ -1,0 +1,77 @@
+name: review-ingest
+
+# Publishes peer reviews. A review arrives as a `paper-review` issue (the
+# structured form at .github/ISSUE_TEMPLATE/paper-review.yml); this workflow
+# parses it into data/reviews/<paper>/issue-<n>.json, commits to main, and
+# kicks the Pages deploy (pushes made with GITHUB_TOKEN do not fire `push`
+# workflows, so the deploy is dispatched explicitly). Editing the issue
+# re-runs ingestion and updates the published review in place.
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+concurrency:
+  group: review-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    if: contains(github.event.issue.labels.*.name, 'paper-review')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Parse and validate the review
+        id: ingest
+        run: node scripts/ingest-review.mjs
+      - name: Commit the review
+        env:
+          SLUG: ${{ steps.ingest.outputs.slug }}
+          REVIEWER: ${{ steps.ingest.outputs.reviewer }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          git config user.name "review-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/reviews
+          if git diff --cached --quiet; then
+            echo "No changes (review identical to the published copy)."
+            echo "PUSHED=no" >> "$GITHUB_ENV"
+          else
+            git commit -m "review: ${SLUG} by @${REVIEWER} (#${ISSUE})"
+            git pull --rebase origin main
+            git push origin main
+            echo "PUSHED=yes" >> "$GITHUB_ENV"
+          fi
+      - name: Trigger deploy
+        if: env.PUSHED == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
+      - name: Confirm on the issue
+        if: env.PUSHED == 'yes' && github.event.action == 'opened'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SLUG: ${{ steps.ingest.outputs.slug }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE" --body "Thank you for the review. It is published at https://iamhumanityfirst.com/research/${SLUG}/ (live within a few minutes). You can edit this issue at any time to revise it; this thread is the place for discussion."
+      - name: Report validation errors on the issue
+        # ERROR_BODY contains reviewer-controlled text; it reaches the shell
+        # only through the environment, never through ${{ }} interpolation
+        # into the script itself.
+        if: failure() && steps.ingest.outputs.error != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ERROR_BODY: ${{ steps.ingest.outputs.error }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE" --body "$(printf 'This review could not be published yet:\n\n%s\n\nEdit this issue to fix the problems above and it will be re-processed automatically.' "$ERROR_BODY")"

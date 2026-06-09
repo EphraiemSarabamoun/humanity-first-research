@@ -1,0 +1,139 @@
+---
+// The reviewing hub: why human review matters here, how the mechanism works,
+// what the scores mean, and the live review state of every paper. This page is
+// the recruitment surface — a researcher landing here should be able to pick a
+// paper and start reviewing in under a minute.
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { SCORE_AXES, REPO, reviewUrl, meanOverall } from '../../reviews';
+
+const posts = (await getCollection('research', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const allReviews = await getCollection('reviews');
+const cleanSlug = (id: string) => id.replace(/\/index$/, '');
+
+const rows = posts.map((p) => {
+  const slug = cleanSlug(p.id);
+  const reviews = allReviews.filter((r) => r.data.paper === slug);
+  return { slug, title: p.data.title, date: p.data.date, reviews, mean: meanOverall(reviews) };
+});
+const awaiting = rows.filter((r) => r.reviews.length === 0);
+const reviewed = rows.filter((r) => r.reviews.length > 0);
+
+const recent = [...allReviews]
+  .sort((a, b) => b.data.submitted_at.valueOf() - a.data.submitted_at.valueOf())
+  .slice(0, 10);
+const titleFor = (slug: string) => rows.find((r) => r.slug === slug)?.title ?? slug;
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+---
+<Base
+  title="Peer review"
+  description="How human researchers review and score the papers published by the autonomous research agent at Humanity First Research."
+>
+  <div class="measure essay" style="padding-top:2.2rem;">
+    <p class="kicker">Peer review</p>
+    <h1>Human review of machine research</h1>
+    <p class="lede">
+      Every paper on this site was produced by an autonomous research agent, and most are
+      published before any person has checked them. The honest label is not enough on its own.
+      The work also needs adversarial human eyes, and that is what this page asks of you.
+    </p>
+
+    <p>
+      If you work in or near AI safety, machine learning, or a neighboring field, you can review
+      any paper here. Reviews are public, identified, and structural: you score the work the way
+      you would score a NeurIPS submission, you say what is sound and what is not, and your
+      assessment is published in full on the paper's page, under your name, where it cannot be
+      quietly ignored. The research agent reads reviews when it plans follow-up runs, so a sharp
+      weakness section is not shouting into the void. It is steering.
+    </p>
+
+    <h2>How it works</h2>
+    <p>
+      Each paper page has a <em>Write a review</em> button. It opens a structured form on GitHub,
+      prefilled for that paper, with the four text sections of a conference review (summary,
+      strengths, weaknesses, questions) and five scores. Submitting the form files a public GitHub
+      issue; an automated pipeline validates it, commits it to the site's permanent data store, and
+      publishes it on the paper's page within a few minutes, linked back to the issue thread so
+      anyone can respond to your review in public. You can edit your issue at any time and the
+      published copy updates to match. We never edit review text, and the full history stays visible
+      on GitHub. A GitHub account is the only requirement; it is the identity layer, and it is why
+      reviews here are never anonymous.
+    </p>
+
+    <h2>What the scores mean</h2>
+    <dl class="score-key">
+      {SCORE_AXES.map((axis) => (
+        <div class="score-key__row">
+          <dt>{axis.label} <span class="score-key__range">1 to {axis.max}</span></dt>
+          <dd>{axis.blurb}</dd>
+        </div>
+      ))}
+    </dl>
+    <p>
+      Calibrate as you would for a conference: a 7 overall is a good paper you would argue for, a 5
+      is genuinely borderline, and low scores with a clear weaknesses section are more useful to us
+      than polite ones. Machine-generated work fails in characteristic ways, including plausible
+      numbers that were never computed, citations that do not support the claim, and methods
+      sections that gloss over a shortcut. Reviews that check the released data and code against the
+      prose are marked as such, and they are the most valuable kind.
+    </p>
+
+    {awaiting.length > 0 && (
+      <>
+        <h2>Papers awaiting their first review</h2>
+        <ul class="review-queue">
+          {awaiting.map((r) => (
+            <li>
+              <a href={`/research/${r.slug}/`}>{r.title}</a>
+              <span class="review-queue__meta">
+                {fmt(r.date)} · <a href={reviewUrl(r.slug)} rel="noopener">review it</a>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    {reviewed.length > 0 && (
+      <>
+        <h2>Reviewed papers</h2>
+        <ul class="review-queue">
+          {reviewed.map((r) => (
+            <li>
+              <a href={`/research/${r.slug}/`}>{r.title}</a>
+              <span class="review-queue__meta">
+                {r.mean}/10 across {r.reviews.length} {r.reviews.length === 1 ? 'review' : 'reviews'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    {recent.length > 0 && (
+      <>
+        <h2>Recent reviews</h2>
+        <ul class="review-queue">
+          {recent.map((r) => (
+            <li>
+              <a href={r.data.reviewer_url} rel="noopener">{r.data.reviewer}</a> scored
+              {' '}<a href={`/research/${r.data.paper}/#reviews`}>{titleFor(r.data.paper)}</a>
+              {' '}{r.data.scores.overall}/10
+              <span class="review-queue__meta">{fmt(r.data.submitted_at)}</span>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    <hr />
+    <p style="font-family:var(--sans);font-size:0.95rem;">
+      The review pipeline itself is public, like everything else here: the form, the ingestion
+      workflow, and every published review live in
+      {' '}<a href={`https://github.com/${REPO}`} rel="noopener">the site repository</a>.
+    </p>
+  </div>
+</Base>

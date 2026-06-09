@@ -1,0 +1,120 @@
+# Structured peer-review form. Submissions labeled `paper-review` are parsed by
+# .github/workflows/review-ingest.yml, written to data/reviews/, and published
+# on the paper's page. Field labels here are load-bearing: the ingest script
+# matches on them (see scripts/ingest-review.mjs FIELD_MAP).
+name: Paper review
+description: Peer-review a paper on iamhumanityfirst.com. Your scores and text are published on the paper's page under your GitHub handle.
+title: "Review: <paper-slug>"
+labels: ["paper-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reviewing. This form follows the NeurIPS review shape, so it should feel familiar.
+
+        Your review will be **published automatically** on the paper's page at iamhumanityfirst.com, attributed to your GitHub handle and linked back to this issue. Use the comment thread below your submitted review for discussion with the maintainer and other reviewers. You can edit your review later by editing this issue; the published copy updates automatically.
+  - type: input
+    id: paper_slug
+    attributes:
+      label: Paper slug
+      description: The path segment after `/research/` in the paper's URL. Prefilled if you arrived from the paper page.
+      placeholder: 2026-06-rl-cot-faithfulness
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Summarize the paper's claims and your overall view in your own words.
+    validations:
+      required: true
+  - type: textarea
+    id: strengths
+    attributes:
+      label: Strengths
+      description: What does the paper do well?
+  - type: textarea
+    id: weaknesses
+    attributes:
+      label: Weaknesses
+      description: Where does it fall short? Methodological problems, overclaiming, missing baselines or controls, statistical issues.
+  - type: textarea
+    id: questions
+    attributes:
+      label: Questions and suggestions
+      description: Questions for the maintainer, and concrete suggestions for follow-up runs. The research agent reads these when planning future work.
+  - type: dropdown
+    id: soundness
+    attributes:
+      label: Soundness
+      description: Are the claims supported by the evidence? Is the method valid and are the numbers trustworthy?
+      options:
+        - 4 (excellent)
+        - 3 (good)
+        - 2 (fair)
+        - 1 (poor)
+    validations:
+      required: true
+  - type: dropdown
+    id: presentation
+    attributes:
+      label: Presentation
+      description: Is the writeup clear, well organized, and honest about its limitations?
+      options:
+        - 4 (excellent)
+        - 3 (good)
+        - 2 (fair)
+        - 1 (poor)
+    validations:
+      required: true
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Does the result matter for AI safety? Would another researcher learn something from it?
+      options:
+        - 4 (excellent)
+        - 3 (good)
+        - 2 (fair)
+        - 1 (poor)
+    validations:
+      required: true
+  - type: dropdown
+    id: overall
+    attributes:
+      label: Overall score
+      description: Your overall assessment of the paper.
+      options:
+        - 10 (outstanding)
+        - 9 (excellent)
+        - 8 (strong)
+        - 7 (good)
+        - 6 (promising)
+        - 5 (borderline)
+        - 4 (weak)
+        - 3 (poor)
+        - 2 (very poor)
+        - 1 (fundamentally flawed)
+    validations:
+      required: true
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: Confidence
+      description: How confident are you in your assessment?
+      options:
+        - 5 (certain)
+        - 4 (confident)
+        - 3 (fairly confident)
+        - 2 (willing to defend, but unsure)
+        - 1 (educated guess)
+    validations:
+      required: true
+  - type: checkboxes
+    id: attestation
+    attributes:
+      label: Attestation
+      options:
+        - label: I am a human and this review reflects my own independent assessment.
+          required: true
+        - label: I examined the released data, code, or PDF beyond the writeup itself.
