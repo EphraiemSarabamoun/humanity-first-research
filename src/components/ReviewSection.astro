@@ -1,0 +1,100 @@
+---
+// Peer-review block on a paper page: aggregate score, the individual reviews,
+// and the call-to-action to write one. Reviews arrive through the GitHub issue
+// form (see src/reviews.ts and /reviews/ for the process) and are identified
+// by GitHub handle — the same person-behind-it transparency the site demands
+// of its own provenance labels.
+import type { CollectionEntry } from 'astro:content';
+import { SCORE_AXES, reviewUrl, meanOverall } from '../reviews';
+
+interface Props {
+  slug: string;
+  reviews: CollectionEntry<'reviews'>[];
+}
+const { slug, reviews } = Astro.props;
+
+const sorted = [...reviews].sort(
+  (a, b) => b.data.submitted_at.valueOf() - a.data.submitted_at.valueOf()
+);
+const mean = meanOverall(sorted);
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+
+const textBlocks = (r: CollectionEntry<'reviews'>['data']) =>
+  [
+    { label: 'Summary', text: r.summary },
+    { label: 'Strengths', text: r.strengths },
+    { label: 'Weaknesses', text: r.weaknesses },
+    { label: 'Questions and suggestions', text: r.questions },
+  ].filter((b) => b.text && b.text.trim().length > 0);
+---
+<section class="reviews" id="reviews" aria-label="Peer reviews">
+  <h2>Peer review</h2>
+
+  {sorted.length === 0 ? (
+    <p class="reviews__empty">
+      No human researcher has reviewed this paper yet. If you work in or near this area, your
+      assessment would carry real weight here: reviews are published in full, scored on the
+      NeurIPS scale, and read by the research agent when it plans follow-up work.
+    </p>
+  ) : (
+    <>
+      <p class="reviews__agg">
+        <strong class="reviews__agg-score">{mean}<span class="reviews__agg-max">/10</span></strong>
+        <span class="reviews__agg-label">
+          mean overall score across {sorted.length} {sorted.length === 1 ? 'review' : 'reviews'}
+        </span>
+      </p>
+
+      <div class="reviews__list">
+        {sorted.map((r) => (
+          <article class="review-card">
+            <header class="review-card__head">
+              <a class="review-card__reviewer" href={r.data.reviewer_url} rel="noopener">
+                {r.data.reviewer}
+              </a>
+              <span class="review-card__meta">
+                <time datetime={r.data.submitted_at.toISOString()}>{fmt(r.data.submitted_at)}</time>
+                {r.data.examined_artifacts && (
+                  <span class="review-card__artifacts" title="The reviewer attests they examined the released data, code, or PDF.">
+                    examined the artifacts
+                  </span>
+                )}
+              </span>
+            </header>
+
+            <dl class="review-card__scores">
+              {SCORE_AXES.map((axis) => (
+                <div class="review-card__score" title={axis.blurb}>
+                  <dt>{axis.label}</dt>
+                  <dd>
+                    {r.data.scores[axis.key]}<span class="review-card__score-max">/{axis.max}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            {textBlocks(r.data).map((b) => (
+              <div class="review-card__block">
+                <h3>{b.label}</h3>
+                <p class="review-card__text">{b.text}</p>
+              </div>
+            ))}
+
+            <p class="review-card__discuss">
+              <a href={r.data.issue_url} rel="noopener">Discuss this review on GitHub →</a>
+            </p>
+          </article>
+        ))}
+      </div>
+    </>
+  )}
+
+  <div class="reviews__cta">
+    <a class="reviews__cta-button" href={reviewUrl(slug)} rel="noopener">Write a review</a>
+    <p class="reviews__cta-note">
+      Reviews are submitted through a structured GitHub form, published here automatically under
+      your GitHub handle, and never edited by us. <a href="/reviews/">How reviewing works.</a>
+    </p>
+  </div>
+</section>

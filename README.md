@@ -39,15 +39,43 @@ The database is decoupled from the site on purpose. Redesign or replace the
 website and the record is untouched. A hosted/edge mirror (Turso/libSQL) for a
 public API is a documented future option, not a current dependency.
 
+## Peer review
+
+Human researchers can review and score any paper, OpenReview-style, with GitHub
+as the backend. The flow:
+
+1. The **Write a review** button on a paper page opens a prefilled GitHub issue
+   form (`.github/ISSUE_TEMPLATE/paper-review.yml`) with NeurIPS-shaped fields:
+   summary / strengths / weaknesses / questions, plus scores for soundness,
+   presentation, contribution (1-4), overall (1-10), and confidence (1-5).
+2. Submitting files a public issue labeled `paper-review`. The
+   `review-ingest` workflow parses and validates it
+   (`scripts/ingest-review.mjs`), writes
+   `data/reviews/<paper>/issue-<n>.json`, commits to main, and dispatches the
+   Pages deploy (a `GITHUB_TOKEN` push does not fire `push` workflows on its
+   own).
+3. The site renders each review on its paper page with the reviewer's GitHub
+   handle, an aggregate mean-overall score, and a link back to the issue thread
+   for discussion. `/reviews/` is the hub: process, score semantics, papers
+   awaiting review, and recent reviews. Feed cards carry a `reviewed x/10 (n)`
+   chip.
+
+Editing the issue re-runs ingestion and updates the published review in place.
+The reviews collection is schema-validated in `src/content.config.ts`, so a
+malformed review file can never ship: `astro build` fails first. Reviews are
+identified (GitHub handle), never anonymous, and never edited by us.
+
 ## Project layout
 
 ```
 src/content/research/<slug>/   one folder per post (index.md + figure_main.png)
 public/research/<slug>/         the downloadable data bundle (clean URLs)
 data/                           the research database (ledger + SQLite)
-src/pages/                      landing (manifesto), feed, tags, log, about, RSS
-src/layouts/ src/components/    Base + Post layouts; provenance, references, etc.
-.github/workflows/              validate (PR build-gate) + deploy (Pages)
+data/reviews/<slug>/            peer reviews, one JSON per review issue
+src/pages/                      landing (manifesto), feed, reviews, tags, log, about, RSS
+src/layouts/ src/components/    Base + Post layouts; provenance, references, reviews
+.github/workflows/              validate (PR build-gate) + deploy (Pages) + review-ingest
+.github/ISSUE_TEMPLATE/         the paper-review form
 ```
 
 ## Run locally
