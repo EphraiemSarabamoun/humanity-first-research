@@ -1,0 +1,28 @@
+# Error-awareness probe portability — workshop synthesis summary
+
+Models: Qwen2.5-7B-Instruct, Llama-3.1-8B-Instruct, Mistral-7B-Instruct-v0.3
+Pipeline: single-forward-pass top-50 next-token distributions at the commitment
+position; top-50 |Cohen's d| feature selection on the training format only;
+logistic regression; AUC-ROC with 2000-resample percentile bootstrap 95% CIs,
+seed 42. Every number below is carried verbatim from a verified run artifact
+(empty recompute diff + independent rank-based reproduction); per-run sources
+are in curve.csv's source_artifact column and the project repository.
+
+## FORWARD (arithmetic-trained probe on capital-city statements)
+  Qwen cross-format AUC-ROC = 0.6490  (95% CI 0.5834-0.7075, n=300; in-format 0.9683, internal control 0.9905; re-executed in-pipeline, byte-identical to the published run)
+  Llama cross-format AUC-ROC = 0.9817  (95% CI 0.9636-0.9956, n=300; in-format 0.9922, internal control 1.0000)
+  Mistral cross-format AUC-ROC = 0.9795  (95% CI 0.9610-0.9936, n=300; in-format 0.9658, internal control 0.9962)
+
+## REVERSE (capitals-trained probe on arithmetic statements)
+  Qwen cross-format AUC-ROC = 0.6782  (95% CI 0.6324-0.7200, n=600; arithmetic-internal control 0.9751)
+  Llama cross-format AUC-ROC = 0.4321  (95% CI 0.3867-0.4790, n=600; below chance; arithmetic-internal control 0.9813)
+
+## HARD TARGET (arithmetic-trained probe on same-country confusable-city capitals)
+  Qwen cross-format AUC-ROC = 0.3372  (95% CI 0.2651-0.4164, n=232; below chance; hard-internal control 0.9758)
+  Llama cross-format AUC-ROC = 0.9891  (95% CI 0.9718-0.9996, n=232; hard-internal control 0.9881)
+
+## Training-time predictability
+  weight-weighted selected-token sign agreement vs observed transfer AUC, Spearman rho = 0.357 over 7 conditions; both below-chance conditions carry positive agreement (predictor misses anti-transfer).
+
+## Verdict
+  Probe portability belongs to the (model, training format, target task) triple; in-format validation (0.966 to 1.000 everywhere) predicts none of it.
