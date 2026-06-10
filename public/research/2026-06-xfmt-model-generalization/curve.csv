@@ -1,0 +1,7 @@
+model,source,arm,auc,auc_lo,auc_hi,n
+Qwen/Qwen2.5-7B-Instruct,published,in_format,0.968300,0.935200,0.992800,120
+Qwen/Qwen2.5-7B-Instruct,published,cross_format,0.649000,0.583400,0.707500,300
+Qwen/Qwen2.5-7B-Instruct,published,capitals_internal,0.990500,0.979600,0.998000,300
+meta-llama/Llama-3.1-8B-Instruct,this_run,in_format,0.992222,0.980698,0.998888,120
+meta-llama/Llama-3.1-8B-Instruct,this_run,cross_format,0.981733,0.963556,0.995559,300
+meta-llama/Llama-3.1-8B-Instruct,this_run,capitals_internal,1.000000,1.000000,1.000000,300
