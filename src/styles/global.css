@@ -184,6 +184,31 @@ blockquote {
   font-size: 1.04rem;
 }
 
+/* ---- paper search ---- */
+.search { margin: 1.8rem 0 0; }
+.search input {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+}
+.search input::placeholder { color: var(--ink-faint); }
+.search input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.search__empty {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin-top: 1.8rem;
+}
+
 /* ---- feed / post cards ---- */
 .feed { list-style: none; padding: 0; margin: 2rem 0 0; }
 .card { padding: 1.4rem 0; border-bottom: 1px solid var(--rule); }

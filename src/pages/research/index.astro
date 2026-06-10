@@ -26,23 +26,88 @@ const reviewsFor = (slug: string) => allReviews.filter((r) => r.data.paper === s
     {posts.length === 0 ? (
       <p>No posts yet. The first run will appear here.</p>
     ) : (
-      <ul class="feed">
-        {posts.map((p) => {
-          const r = reviewsFor(cleanSlug(p.id));
-          return (
-            <PostCard
-              href={`/research/${cleanSlug(p.id)}/`}
-              title={p.data.title}
-              date={p.data.date}
-              summary={p.data.summary}
-              tags={p.data.tags}
-              oversight={p.data.oversight}
-              reviewMean={meanOverall(r)}
-              reviewCount={r.length}
-            />
-          );
-        })}
-      </ul>
+      <>
+        <form class="search" role="search" data-paper-search>
+          <label class="visually-hidden" for="paper-search">Search papers by title or tag</label>
+          <input
+            id="paper-search"
+            type="search"
+            name="q"
+            placeholder="Search papers by title or tag…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </form>
+
+        <ul class="feed" data-paper-feed>
+          {posts.map((p) => {
+            const r = reviewsFor(cleanSlug(p.id));
+            return (
+              <PostCard
+                href={`/research/${cleanSlug(p.id)}/`}
+                title={p.data.title}
+                date={p.data.date}
+                summary={p.data.summary}
+                tags={p.data.tags}
+                oversight={p.data.oversight}
+                reviewMean={meanOverall(r)}
+                reviewCount={r.length}
+              />
+            );
+          })}
+        </ul>
+        <p class="search__empty" data-search-empty aria-live="polite" hidden>
+          No papers match <q data-search-query></q>.
+        </p>
+      </>
     )}
   </div>
 </Base>
+
+<script>
+  // Live title filter over the already-rendered feed. The whole feed ships in
+  // the HTML, so search is a client-side show/hide — no index, no network.
+  const input = document.getElementById('paper-search') as HTMLInputElement | null;
+  const feed = document.querySelector<HTMLElement>('[data-paper-feed]');
+  const empty = document.querySelector<HTMLElement>('[data-search-empty]');
+  const queryEcho = document.querySelector<HTMLElement>('[data-search-query]');
+
+  if (input && feed) {
+    const cards = Array.from(feed.querySelectorAll<HTMLElement>('.card'));
+    // title is the primary field; tags are included so topic words still hit
+    // (the matching tag chip is visible on the card, so a hit explains itself)
+    const haystacks = cards.map((c) => {
+      const title = c.querySelector('.card__title')?.textContent ?? '';
+      const tags = Array.from(c.querySelectorAll('.tag'), (t) => t.textContent ?? '');
+      return [title, ...tags].join(' ').toLowerCase();
+    });
+
+    const apply = (raw: string) => {
+      const terms = raw.toLowerCase().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      cards.forEach((card, i) => {
+        const hit = terms.every((t) => haystacks[i].includes(t));
+        card.hidden = !hit;
+        if (hit) shown++;
+      });
+      if (empty && queryEcho) {
+        queryEcho.textContent = raw.trim();
+        empty.hidden = shown > 0 || terms.length === 0;
+      }
+      // keep the query in the URL so a search is shareable
+      const url = new URL(window.location.href);
+      if (raw.trim()) url.searchParams.set('q', raw.trim());
+      else url.searchParams.delete('q');
+      window.history.replaceState(null, '', url);
+    };
+
+    input.addEventListener('input', () => apply(input.value));
+    input.form?.addEventListener('submit', (e) => e.preventDefault());
+
+    const initial = new URLSearchParams(window.location.search).get('q');
+    if (initial) {
+      input.value = initial;
+      apply(initial);
+    }
+  }
+</script>
