@@ -31,6 +31,7 @@ data_files:
 - analysis_points.csv
 - eval_points.jsonl
 links:
+  github: https://github.com/EphraiemSarabamoun/humanity-first-research-code/tree/main/xfmt-model-generalization
   code_local: ~/projects/xfmt-model-generalization
 references:
 - key: burns2022discovering

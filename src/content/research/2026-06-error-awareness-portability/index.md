@@ -31,6 +31,7 @@ pdf: paper.pdf
 data_files:
 - analysis_summary.txt
 links:
+  github: https://github.com/EphraiemSarabamoun/humanity-first-research-code/tree/main/xfmt-model-generalization
   code_local: ~/projects/xfmt-model-generalization
 references:
 - key: burns2022discovering

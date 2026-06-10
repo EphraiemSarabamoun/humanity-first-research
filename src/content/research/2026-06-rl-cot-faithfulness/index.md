@@ -31,7 +31,7 @@ data_files:
 - analysis_tests.csv
 - eval_points.jsonl
 links:
-  github: https://github.com/EphraiemSarabamoun/rl-cot-faithfulness
+  github: https://github.com/EphraiemSarabamoun/humanity-first-research-code/tree/main/rl-cot-faithfulness
   code_local: ~/projects/rl-cot-faithfulness
 references:
 - key: wei2022chain

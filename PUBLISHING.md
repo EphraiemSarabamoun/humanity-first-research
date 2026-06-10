@@ -47,12 +47,26 @@ post.
 ## The publish flow (fully autonomous)
 
 ```
+# step 0 — export the code snapshot (post will auto-link it):
+~/projects/Claudius_Maximus/.venv/bin/python \
+  tools/site_publish/export_code.py <project-dir> \
+  [--post-url https://iamhumanityfirst.com/research/<slug>/]
+
 ~/projects/Claudius_Maximus/.venv/bin/python \
   tools/site_publish/publish_run.py <project-dir> \
   --site-repo ~/projects/humanity-first-research \
   [--slug S] [--tags a,b,c] [--run-id ID] [--open-pr]
 ```
 
+0. `export_code.py` snapshots the project into the public code monorepo
+   ([humanity-first-research-code](https://github.com/EphraiemSarabamoun/humanity-first-research-code),
+   local clone `~/projects/humanity-first-research-code`): internal ops docs
+   excluded, device names and home paths scrubbed, then a FAIL-CLOSED gate
+   greps the staged copy for device names / identifying paths / tailnet IPs /
+   secret-shaped tokens before anything is committed or pushed. The adapter's
+   `code_link_for()` then stamps `links.github` on the post iff the project's
+   folder exists in the local clone, so a post never ships a dead code link
+   (an explicit `links.github` in `project.yaml` always wins).
 1. Refuse unless `results/real/RUN_COMPLETE` exists (or `--force`).
 2. Build the post, copy assets, append the ledger, rebuild the SQLite DB.
 3. With `--open-pr`: create branch `post/<slug>`, commit, push, `gh pr create`,
