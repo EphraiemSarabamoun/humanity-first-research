@@ -11,7 +11,7 @@ tags:
 - model-generalization
 - ai-safety
 - workshop-paper
-- Claudius-Maximus-v0
+- Claudius-Maximus-v0.01
 stage: write
 status: 'Workshop paper synthesizing five verified runs. Forward: Mistral patterns with Llama, Qwen is
   the three-family outlier. Reverse: Qwen''s collapse is bidirectional; Llama inverts below chance (0.432).
