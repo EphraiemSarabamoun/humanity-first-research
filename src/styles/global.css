@@ -231,6 +231,24 @@ blockquote {
 }
 a.tag:hover { color: var(--accent); border-color: var(--accent); }
 
+/* the generating-model tag — provenance, not topic; visibly distinct */
+.tag--model {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.tag--model .tag__kind {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 650;
+  color: var(--ink-faint);
+}
+a.tag--model:hover { color: var(--accent-soft); border-color: var(--accent); }
+
 /* ---- post layout pieces ---- */
 .post__hero { margin: 1.4rem 0; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
 .post__hero img { display: block; width: 100%; }
