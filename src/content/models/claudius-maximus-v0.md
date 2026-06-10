@@ -1,6 +1,7 @@
 ---
 version: Claudius-Maximus-v0
 introduced: 2026-06-08
+retired: 2026-06-10
 base_model: Anthropic Claude, running as Claude Code agents. The underlying Claude generation was not pinned or recorded per run in v0.
 harness: A single research agent owns the full experimental chain; an independent manager session verifies the work before publication.
 summary: The first researcher setup behind this site. One agent carries a question from dataset construction through experiments, analysis, figures, and a NeurIPS-format writeup, and a second, independent agent session verifies the work before it is published.
