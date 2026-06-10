@@ -109,6 +109,25 @@ const reviews = defineCollection({
   }),
 });
 
+// Researcher-version cards. One per generating-model tag (Claudius-Maximus-vN):
+// the durable record of what setup that version actually was — harness shape,
+// verify gate, base LLM, known limitations. The tag page for a model renders
+// its card above the papers, and src/pages/tags/[tag].astro fails the build if
+// a research post carries a model tag with no matching card here, so bumping
+// AUTO_RESEARCH_MODEL in the publish adapter without writing the new card
+// breaks CI on the first publish. Versioning is enforced, not aspirational.
+const models = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/models' }),
+  schema: z.object({
+    version: z.string(), // the exact tag string, e.g. "Claudius-Maximus-v0"
+    introduced: z.coerce.date(),
+    retired: z.coerce.date().optional(), // unset = currently active
+    base_model: z.string(), // underlying LLM(s) driving the agents
+    harness: z.string(), // one-line architecture summary
+    summary: z.string().min(40),
+  }),
+});
+
 // Short milestone / changelog entries (e.g. "no-cue control folded in").
 const log = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/log' }),
@@ -121,4 +140,4 @@ const log = defineCollection({
   }),
 });
 
-export const collections = { research, reviews, log };
+export const collections = { research, reviews, log, models };

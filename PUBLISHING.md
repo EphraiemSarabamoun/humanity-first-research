@@ -71,6 +71,27 @@ human does review one, set `human_reviewed_by` and `human_reviewed_at` in the
 post's frontmatter (and optionally `review_note`); the banner switches to the
 reviewed form automatically.
 
+## Bumping the researcher version
+
+Every paper is tagged with the researcher version that produced it
+(`AUTO_RESEARCH_MODEL` in the publish adapter, e.g. `Claudius-Maximus-v0`),
+and every version must have a model card at
+`src/content/models/<version-slug>.md` recording what that setup actually was:
+harness shape, verify gate, base LLM, known limitations.
+
+This is CI-enforced: `src/pages/tags/[tag].astro` fails `astro build` if any
+research post carries a model tag (a tag ending in `-v<digits>`, see
+`src/model-tag.ts`) with no matching card. So the bump procedure is:
+
+1. Write the new card `src/content/models/claudius-maximus-vN.md` FIRST
+   (schema in `src/content.config.ts`, `models` collection). Pin the base
+   model and describe what changed from the previous version.
+2. Set `retired:` on the previous version's card.
+3. Bump `AUTO_RESEARCH_MODEL` in `tools/site_publish/publish_run.py`
+   (in the research workspace repo).
+4. Publish. If you skipped step 1, the first publish under the new tag goes
+   red on the validate check and never merges.
+
 ## Off-limits
 
 The adapter must never read `record.docx`. The source of truth for prose is
