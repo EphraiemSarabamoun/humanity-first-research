@@ -50,6 +50,9 @@ const research = defineCollection({
       // run provenance / reproducibility
       run_id: z.string().optional(),
       compute: z.string().optional(),
+      // API-equivalent token cost (USD) to produce the paper — a tracking
+      // metric stamped by the publish adapter from cost_report.json
+      cost_usd: z.number().optional(),
       collaborators: z.array(z.string()).default([]),
 
       // assets (colocated, relative to the post folder)

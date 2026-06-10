@@ -25,6 +25,7 @@ const metaBits = [
   d.collaborators.length ? d.collaborators.join(', ') : null,
   d.run_id ? `run ${d.run_id}` : null,
   d.compute ?? null,
+  d.cost_usd != null ? `produced for $${d.cost_usd.toFixed(2)} in tokens (API-equivalent)` : null,
 ].filter(Boolean);
 
 // ScholarlyArticle metadata for scholarly crawlers; the peer-review aggregate
