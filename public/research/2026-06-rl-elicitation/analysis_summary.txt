@@ -1,0 +1,201 @@
+# RL-as-elicitation: analysis summary
+
+Run rl-elicitation-20260610. Slices: gsm8k, math (gsm8k from samples.csv; math from samples_math.csv).
+Arms: base, rl, elicit_fewshot, elicit_bon; one row per (problem, arm,
+sample) per slice file. Estimator: unbiased pass@k (Chen et al. 2021).
+Bootstrap over problems, 2000 resamples, percentile 95% CI, seed 42 for
+curves, seed 43 for recovery, and seed 44 for paired differences and
+matched-budget selection, each rng consumed slice-by-slice in the
+order above, problem arrays rebuilt in eval_order.
+
+## Pass@k (gsm8k)
+  base pass_at_1 = 0.6512  (95% CI 0.6048-0.6941, n=200)
+  base pass_at_64 = 0.9800  (95% CI 0.9600-0.9950, n=200)
+  rl pass_at_1 = 0.7092  (95% CI 0.6656-0.7527, n=200)
+  rl pass_at_64 = 0.9750  (95% CI 0.9500-0.9950, n=200)
+  elicit_fewshot pass_at_1 = 0.6438  (95% CI 0.5950-0.6919, n=200)
+  elicit_fewshot pass_at_8 = 0.9100  (95% CI 0.8700-0.9450, n=200)
+  elicit_bon pass_at_1 = 0.6544  (95% CI 0.6081-0.7000, n=200)
+  elicit_bon pass_at_16 = 0.9650  (95% CI 0.9350-0.9850, n=200)
+  full per-arm curves in curve.csv
+
+## Crossover (gsm8k)
+  no crossover detected within the k grid: at no k does the base
+  95% CI lower bound exceed the rl point estimate
+
+## Solved-set overlap (gsm8k)
+  base solved 196 of 200 problems; rl solved 195 of 200
+  rl_solved_subset_of_base_fraction = 1.0000
+  rl-only problems (rl solves, base never does) = 0; ids in rl_only_problems.csv
+  base-unsolved problems (the subset test's discriminative room) = 4
+  subset_fraction_floor_at_max_violation = 0.9795  (the subset fraction if every base-unsolved problem were rl-solved)
+  chance expectation for one-sided problems under pooled equal per-problem
+  rates (one arm with at least one success in its samples, the other with
+  none; same expectation in each direction at equal budgets):
+  expected_rl_only_under_equal_rates = 0.5454
+  observed one-sided counts: 0 rl-only vs 1 base-only
+
+## Paired differences (gsm8k)
+  paired problem bootstrap (seed 44, 2000 resamples; rl minus base recomputed
+  on each problem resample; differences are defined everywhere so
+  no replicate is dropped, unlike the recovered-fraction ratio
+  bootstrap below)
+  rl_minus_base_pass_at_1_gain = 0.0580  (95% CI 0.0466-0.0695, n=200)
+  rl_minus_base_pass_at_64_gap = -0.0050  (95% CI -0.0150-0.0000, n=200)
+
+## Elicitation recovery, budget-B selection vs rl pass@1 (gsm8k)
+  computed on the 200 problems common to all four arms
+  NOTE this comparison is budget-asymmetric by design (it asks what a
+  B-sample intervention on the base model buys against the SINGLE
+  sample behind rl pass-at-1); the equal-budget comparison lives in
+  the Matched-budget selection section.
+  both semantics reported: recovered_fraction selects with the
+  ground-truth verifier (oracle pass-at-B, the reachability ceiling);
+  sc_recovered_fraction selects by self-consistency majority vote over
+  the same budget (deployable, no labels at inference). At budget 1 the
+  two coincide by definition.
+  rl_minus_base_pass_at_1_gain = 0.0580
+  bootstrap replicates kept (resampled gain positive) = 2000 of 2000; the recovered-fraction CIs
+  below are conditional on that sign (the paired gain CI in
+  Paired differences is not)
+  elicit_fewshot recovered_fraction at budget 1 = -0.1294  (95% CI -0.5300-0.2685, n=200)
+  elicit_bon recovered_fraction at budget 16 = 5.4124  (95% CI 4.3626-6.9526, n=200)
+  elicit_bon sc_recovered_fraction at budget 16 = 2.3935  (95% CI 1.7654-3.1585, n=200)
+  full per-selector budget sweep in recovery.csv
+
+## Matched-budget selection (gsm8k)
+  the SAME deterministic prefix majority vote (rules identical to
+  eval/selector.py) applied to both arms at the same per-problem
+  budget; diff is rl minus base with a paired problem bootstrap CI
+  (seed 44). At budget 1 the vote is the single
+  first sample, a single-draw rate, not the unbiased pass_at_1 above.
+  rl_maj_at_1 = 0.7200
+  base_maj_at_1 = 0.6350
+  rl_minus_base_maj_at_1 = 0.0850  (95% CI 0.0150-0.1500, n=200)
+  rl_maj_at_2 = 0.7250
+  base_maj_at_2 = 0.6350
+  rl_minus_base_maj_at_2 = 0.0900  (95% CI 0.0200-0.1650, n=200)
+  rl_maj_at_4 = 0.7800
+  base_maj_at_4 = 0.7200
+  rl_minus_base_maj_at_4 = 0.0600  (95% CI 0.0050-0.1150, n=200)
+  rl_maj_at_8 = 0.8050
+  base_maj_at_8 = 0.7600
+  rl_minus_base_maj_at_8 = 0.0450  (95% CI 0.0000-0.0950, n=200)
+  rl_maj_at_16 = 0.8100
+  base_maj_at_16 = 0.8100
+  rl_minus_base_maj_at_16 = 0.0000  (95% CI -0.0350-0.0350, n=200)
+  rl_maj_at_32 = 0.8150
+  base_maj_at_32 = 0.8100
+  rl_minus_base_maj_at_32 = 0.0050  (95% CI -0.0100-0.0200, n=200)
+  rl_maj_at_64 = 0.8350
+  base_maj_at_64 = 0.8150
+  rl_minus_base_maj_at_64 = 0.0200  (95% CI -0.0050-0.0450, n=200)
+  full table in matched_budget.csv
+
+## Truncation (gsm8k)
+  completion cap (max observed n_tokens_out) = 640 tokens;
+  cap-length completions are almost certainly cut off mid-solution,
+  so high rates inflate never-solves and depress large-k pass rates
+  base truncated_fraction = 0.0034
+  rl truncated_fraction = 0.0037
+  elicit_fewshot truncated_fraction = 0.0144
+  elicit_bon truncated_fraction = 0.0031
+  per-sample token counts in samples.csv
+
+## Pass@k (math)
+  base pass_at_1 = 0.5075  (95% CI 0.4513-0.5680, n=150)
+  base pass_at_64 = 0.8733  (95% CI 0.8133-0.9200, n=150)
+  rl pass_at_1 = 0.5328  (95% CI 0.4668-0.5919, n=150)
+  rl pass_at_64 = 0.9067  (95% CI 0.8533-0.9467, n=150)
+  elicit_fewshot pass_at_1 = 0.5700  (95% CI 0.5025-0.6358, n=150)
+  elicit_fewshot pass_at_8 = 0.7733  (95% CI 0.7065-0.8333, n=150)
+  elicit_bon pass_at_1 = 0.5058  (95% CI 0.4458-0.5667, n=150)
+  elicit_bon pass_at_16 = 0.8067  (95% CI 0.7400-0.8667, n=150)
+  full per-arm curves in curve_math.csv
+
+## Crossover (math)
+  no crossover detected within the k grid: at no k does the base
+  95% CI lower bound exceed the rl point estimate
+
+## Solved-set overlap (math)
+  base solved 131 of 150 problems; rl solved 136 of 150
+  rl_solved_subset_of_base_fraction = 0.9559
+  rl-only problems (rl solves, base never does) = 6; ids in rl_only_problems_math.csv
+  base-unsolved problems (the subset test's discriminative room) = 19
+  subset_fraction_floor_at_max_violation = 0.8603  (the subset fraction if every base-unsolved problem were rl-solved)
+  chance expectation for one-sided problems under pooled equal per-problem
+  rates (one arm with at least one success in its samples, the other with
+  none; same expectation in each direction at equal budgets):
+  expected_rl_only_under_equal_rates = 2.6991
+  observed one-sided counts: 6 rl-only vs 1 base-only
+
+## Paired differences (math)
+  paired problem bootstrap (seed 44, 2000 resamples; rl minus base recomputed
+  on each problem resample; differences are defined everywhere so
+  no replicate is dropped, unlike the recovered-fraction ratio
+  bootstrap below)
+  rl_minus_base_pass_at_1_gain = 0.0253  (95% CI 0.0135-0.0369, n=150)
+  rl_minus_base_pass_at_64_gap = 0.0333  (95% CI 0.0000-0.0667, n=150)
+
+## Elicitation recovery, budget-B selection vs rl pass@1 (math)
+  computed on the 150 problems common to all four arms
+  NOTE this comparison is budget-asymmetric by design (it asks what a
+  B-sample intervention on the base model buys against the SINGLE
+  sample behind rl pass-at-1); the equal-budget comparison lives in
+  the Matched-budget selection section.
+  both semantics reported: recovered_fraction selects with the
+  ground-truth verifier (oracle pass-at-B, the reachability ceiling);
+  sc_recovered_fraction selects by self-consistency majority vote over
+  the same budget (deployable, no labels at inference). At budget 1 the
+  two coincide by definition.
+  rl_minus_base_pass_at_1_gain = 0.0253
+  bootstrap replicates kept (resampled gain positive) = 2000 of 2000; the recovered-fraction CIs
+  below are conditional on that sign (the paired gain CI in
+  Paired differences is not)
+  elicit_fewshot recovered_fraction at budget 1 = 2.4691  (95% CI 1.4680-4.7740, n=150)
+  elicit_bon recovered_fraction at budget 16 = 11.8189  (95% CI 7.9500-23.5454, n=150)
+  elicit_bon sc_recovered_fraction at budget 16 = 5.7613  (95% CI 3.3576-12.3880, n=150)
+  full per-selector budget sweep in recovery_math.csv
+
+## Matched-budget selection (math)
+  the SAME deterministic prefix majority vote (rules identical to
+  eval/selector.py) applied to both arms at the same per-problem
+  budget; diff is rl minus base with a paired problem bootstrap CI
+  (seed 44). At budget 1 the vote is the single
+  first sample, a single-draw rate, not the unbiased pass_at_1 above.
+  rl_maj_at_1 = 0.5067
+  base_maj_at_1 = 0.5133
+  rl_minus_base_maj_at_1 = -0.0067  (95% CI -0.0867-0.0733, n=150)
+  rl_maj_at_2 = 0.5267
+  base_maj_at_2 = 0.5200
+  rl_minus_base_maj_at_2 = 0.0067  (95% CI -0.0733-0.0867, n=150)
+  rl_maj_at_4 = 0.5600
+  base_maj_at_4 = 0.5667
+  rl_minus_base_maj_at_4 = -0.0067  (95% CI -0.0667-0.0533, n=150)
+  rl_maj_at_8 = 0.5867
+  base_maj_at_8 = 0.6333
+  rl_minus_base_maj_at_8 = -0.0467  (95% CI -0.1002-0.0133, n=150)
+  rl_maj_at_16 = 0.6133
+  base_maj_at_16 = 0.6333
+  rl_minus_base_maj_at_16 = -0.0200  (95% CI -0.0667-0.0333, n=150)
+  rl_maj_at_32 = 0.6400
+  base_maj_at_32 = 0.6333
+  rl_minus_base_maj_at_32 = 0.0067  (95% CI -0.0333-0.0467, n=150)
+  rl_maj_at_64 = 0.6533
+  base_maj_at_64 = 0.6600
+  rl_minus_base_maj_at_64 = -0.0067  (95% CI -0.0467-0.0333, n=150)
+  full table in matched_budget_math.csv
+
+## Truncation (math)
+  completion cap (max observed n_tokens_out) = 1024 tokens;
+  cap-length completions are almost certainly cut off mid-solution,
+  so high rates inflate never-solves and depress large-k pass rates
+  base truncated_fraction = 0.0799
+  rl truncated_fraction = 0.0772
+  elicit_fewshot truncated_fraction = 0.0650
+  elicit_bon truncated_fraction = 0.0783
+  per-sample token counts in samples_math.csv
+
+## Verdict
+  gsm8k: no base-over-rl crossover within the k grid; rl successes lie almost entirely within the base model's reachable set; the paired pass@1 gain is resolved from zero (CI 0.0466 to 0.0695); under the same vote at the same budget rl sits above base at 6 of 7 budgets (3 with CI excluding zero); budget-B label-free selection on the base model recovers a majority of the rl single-sample gain (a budget-asymmetric comparison).
+  math: no base-over-rl crossover within the k grid; rl successes lie almost entirely within the base model's reachable set; the paired pass@1 gain is resolved from zero (CI 0.0135 to 0.0369); under the same vote at the same budget rl sits above base at 2 of 7 budgets (0 with CI excluding zero); budget-B label-free selection on the base model recovers a majority of the rl single-sample gain (a budget-asymmetric comparison).
