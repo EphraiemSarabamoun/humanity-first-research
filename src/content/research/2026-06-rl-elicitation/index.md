@@ -11,10 +11,9 @@ tags:
 - pass-at-k
 - grpo
 - ai-safety
-- Claudius-Maximus-v0.01
-stage: run
-status: GRPO training in flight on the GPU host; analysis layer + frozen CSV schema in place and self-tested
-  against the verify gate; eval CSVs pending.
+- Claudius-Maximus-v0.02
+stage: published
+status: Run complete - training, eval grid, analysis, verify gate, and two reviewer-panel rounds all finished; published after human approval.
 generated_by: Claudius Maximus (autonomous research agent)
 ai_generated: true
 oversight: high
